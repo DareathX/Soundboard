@@ -5,24 +5,78 @@
              StartupUri="MainWindow/MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
-            <Style x:Key="Buttons" TargetType="Button">
+            <Style x:Key="ButtonHover" TargetType="{x:Type Button}">
+                <Setter Property="Background"
+                        Value="Transparent"/>
+                <Setter Property="OverridesDefaultStyle"
+                        Value="True"/>
                 <Setter Property="Template">
                     <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type Button}">
-                            <Border x:Name="Border" Background="{TemplateBinding Background}">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <ControlTemplate TargetType="Button">
+                            <Border Name="border"
+                                    Background="{TemplateBinding Background}"
+                                    BorderThickness="0">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
-                                <Trigger Property="Control.IsMouseOver" Value="true">
-                                        <Setter Property = "Foreground" Value="#25272A"/>
-                                    </Trigger>
-                                <Trigger Property="IsPressed" Value="true">
-                                    <Setter Property = "Background" Value="#25272A"/>
+                                <Trigger Property="Button.IsPressed"
+                                         Value="True">
+                                    <Setter TargetName="border"
+                                            Property="BorderBrush"
+                                            Value="Transparent" />
+                                </Trigger>
+                                <Trigger Property="IsMouseOver"
+                                         Value="True">
+                                    <Setter Property="Background">
+                                        <Setter.Value>
+                                            <SolidColorBrush Color="#FF3E4147"/>
+                                        </Setter.Value>
+                                    </Setter>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
+            </Style>
+            <Style x:Key="DataGridHover"
+                   TargetType="{x:Type DataGridCell}">
+                <Setter Property="Background"
+                        Value="Transparent"/>
+                <Setter Property="BorderBrush"
+                        Value="Transparent"/>
+                <Setter Property="BorderThickness"
+                        Value="0"/>
+                <Setter Property="FontWeight"
+                        Value="bold"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type DataGridCell}">
+                            <Border BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    Background="{TemplateBinding Background}"
+                                    SnapsToDevicePixels="True">
+                                <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" 
+                             Value="True">
+                        <Setter Property="Background"
+                                Value="#FF3E4147"/>
+                        <Setter Property="Foreground"
+                                Value="Black"/>
+                        <Setter Property="BorderBrush"
+                                Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                    </Trigger>
+                    <Trigger Property="IsKeyboardFocusWithin"
+                             Value="True">
+                        <Setter Property="BorderBrush"
+                                Value="{DynamicResource {x:Static DataGrid.FocusBorderBrushKey}}"/>
+                    </Trigger>
+                </Style.Triggers>
             </Style>
         </ResourceDictionary>
     </Application.Resources>

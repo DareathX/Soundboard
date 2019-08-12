@@ -3,24 +3,281 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Soundboard"
         mc:Ignorable="d"
-        Title="Soundboard" Height="700" Width="500">
-
-
+        Title="Soundboard"
+        Height="700" Width="500"
+        Visibility="Visible"
+        ResizeMode="CanResize"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Name="main">
+    <WindowChrome.WindowChrome>
+        <WindowChrome ResizeBorderThickness="5"
+                      CaptionHeight="25"
+                      NonClientFrameEdges="None"/>
+    </WindowChrome.WindowChrome>
     <Grid Background="#36393F">
         <Grid.RowDefinitions>
-            <RowDefinition Height="54"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="100"/>
+            <RowDefinition/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="54"/>
-            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
+        <Rectangle Height="25"
+                   Grid.ColumnSpan="3">
+            <Rectangle.Fill>
+                <SolidColorBrush Color="#25272B"/>
+            </Rectangle.Fill>
+        </Rectangle>
+        <StackPanel Height="25"
+                    Grid.ColumnSpan="3"
+                    Background="#25272B"
+                    HorizontalAlignment="Right"
+                    Orientation="Horizontal"
+                    WindowChrome.IsHitTestVisibleInChrome="True">
+            <Button Height="25"
+                    Width="30"
+                    Grid.Column="3"
+                    Click="MinimizeSoundBoard"
+                    Style="{StaticResource ButtonHover}">
+                <Image  Height="16"
+                    Width="16"
+                    Source="../Resources/Minimize.png"/>
+            </Button>
+            <Button Height="25"
+                    Width="30"
+                    Grid.Column="3"
+                    Style="{StaticResource ButtonHover}"
+                    Click="MaximizeSoundBoard">
+                <Image  Height="16"
+                    Width="16"
+                    Source="../Resources/Maximize.png"/>
+            </Button>
+            <Button Height="25"
+                    Width="30"
+                    Grid.Column="3"
+                    HorizontalAlignment="Right"
+                    Click="ExitSoundBoard">
+                <Image  Height="16"
+                        Width="16"
+                        Source="../Resources/ExitButton.png"/>
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Name="border" Background="{TemplateBinding Background}" BorderThickness="0">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="Button.IsPressed" Value="True">
+                                            <Setter TargetName="border" Property="BorderBrush" Value="Transparent" />
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#FFF04747"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
+        <StackPanel Grid.Row="2">
+            <Grid Grid.Row="2">
+                <Image Source="../Resources/AmountKnob.png"
+                       Name="firstVolumeAmount"
+                       VerticalAlignment="Top"/>
+                <StackPanel>
+                    <Image Name="firstVolume"
+                           Source="../Resources/TurningKnob.png"
+                           RenderTransformOrigin="0.505,0.505"
+                           MouseLeftButtonDown="KnobMouseLeftButtonDown"
+                           MouseMove="KnobMouseMove"
+                           MouseLeftButtonUp="KnobMouseLeftButtonUp"
+                           MouseLeave="MouseLeave">
+                        <Image.RenderTransform>
+                            <RotateTransform Angle="0"/>
+                        </Image.RenderTransform>
+                    </Image>
+                    <TextBlock Text="Input Volume"
+                               FontSize="14"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Bottom"
+                               Margin="0 -15 0 0"/>
+                </StackPanel>
+                <Popup Name="firstVolumeKnobPercentage"
+                       Width="auto"
+                       Height="auto"
+                       Placement="Relative"
+                       PlacementTarget="{Binding ElementName=main}">
+                    <TextBlock Name="firstVolumePercentage"
+                               Background="White"
+                               TextAlignment="Center"/>
+                </Popup>
+            </Grid>
+            <Grid Grid.Row="2">
+                <Image Source="../Resources/AmountKnob.png"
+                       VerticalAlignment="Top"
+                       Name="secondVolumeAmount"/>
+                <StackPanel>
+                    <Image Name="secondVolume"
+                           Source="../Resources/TurningKnob.png"
+                           RenderTransformOrigin="0.505,0.505"
+                           MouseLeftButtonDown="KnobMouseLeftButtonDown"
+                           MouseMove="KnobMouseMove"
+                           MouseLeftButtonUp="KnobMouseLeftButtonUp"
+                           MouseLeave="MouseLeave">
+                        <Image.RenderTransform>
+                            <RotateTransform Angle="0"/>
+                        </Image.RenderTransform>
+                    </Image>
+                    <TextBlock Text="Output Volume"
+                           FontSize="13"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Bottom"
+                           Margin="0 -15 0 0"/>
+                </StackPanel>
+                <Popup Name="secondVolumeKnobPercentage"
+                       Width="auto"
+                       Height="auto"
+                       Placement="Relative"
+                       PlacementTarget="{Binding ElementName=main}">
+                    <TextBlock Name="secondVolumePercentage"
+                               Background="White"
+                               TextAlignment="Center"/>
+                </Popup>
+            </Grid>
+            <Grid Grid.Row="2">
+                <Image Source="../Resources/AmountKnob.png"
+                       Name="pitchAmount"
+                       VerticalAlignment="Top"/>
+                <StackPanel>
+                    <Image Source="../Resources/TurningKnob.png"
+                           Name="pitch"
+                           RenderTransformOrigin="0.505,0.505"
+                           MouseLeftButtonDown="KnobMouseLeftButtonDown"
+                           MouseMove="KnobMouseMove"
+                           MouseLeftButtonUp="KnobMouseLeftButtonUp"
+                           MouseLeave="MouseLeave">
+                        <Image.RenderTransform>
+                            <RotateTransform Angle="0"/>
+                        </Image.RenderTransform>
+                    </Image>
+                    <TextBlock Text="Pitch"
+                           FontSize="16"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Bottom"
+                           Margin="0 -15 0 0"/>
+                </StackPanel>
+                <Popup Name="pitchKnobPercentage"
+                       Width="auto"
+                       Height="auto"
+                       Placement="Relative"
+                       PlacementTarget="{Binding ElementName=main}">
+                    <TextBlock Name="pitchPercentage"
+                               Background="White"
+                               TextAlignment="Center"/>
+                </Popup>
+            </Grid>
+            <Grid Grid.Row="2">
+                <Image Source="../Resources/AmountKnob.png"
+                       Name="speedAmount"
+                       VerticalAlignment="Top"/>
+                <StackPanel>
+                    <Image Source="../Resources/TurningKnob.png"
+                           Name="speed"
+                           RenderTransformOrigin="0.505,0.505"
+                           MouseLeftButtonDown="KnobMouseLeftButtonDown"
+                           MouseMove="KnobMouseMove"
+                           MouseLeftButtonUp="KnobMouseLeftButtonUp"
+                           MouseLeave="MouseLeave">
+                        <Image.RenderTransform>
+                            <RotateTransform Angle="0"/>
+                        </Image.RenderTransform>
+                    </Image>
+                    <TextBlock Text="Speed"
+                               FontSize="16"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Bottom"
+                               Margin="0 -15 0 0"/>
+                </StackPanel>
+                <Popup Name="speedKnobPercentage"
+                       Width="auto"
+                       Height="auto"
+                       Placement="Relative"
+                       PlacementTarget="{Binding ElementName=main}">
+                    <TextBlock Name="speedPercentage"
+                               Background="White"
+                               TextAlignment="Center"/>
+                </Popup>
+            </Grid>
+            <Grid Grid.Row="2"
+                  Margin="0 15 0 10">
+                <StackPanel>
+                    <CheckBox HorizontalAlignment="Center"/>
+                    <TextBlock Text="Overlap"
+                           FontSize="16"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+            <Grid Grid.Row="2"
+                  Height="50">
+                <Button Width="50"
+                        Height="25"
+                        Content="Reset"
+                        FontWeight="Bold"
+                        Style="{StaticResource ButtonHover}" Click="DialResetButton"/>
+            </Grid>
+        </StackPanel>
+        <StackPanel Name="ButtonMenu"
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Grid.RowSpan="2"
+                    VerticalAlignment="Top"
+                    Height="100"
+                    MaxHeight="190"
+                    MinHeight="100">
+            <Button Name="MenuToggleButton"
+                    Click="MenuToggleButton_Click"
+                    Width="46"
+                    Height="46"
+                    Grid.Row="2"
+                    Grid.Column="0"
+                    Margin="0 27 0 0"
+                    Style="{StaticResource ButtonHover}">
+                <Image Source="../Resources/settings.png"/>
+            </Button>
+            <Button Width="100"
+                    Height="30"
+                    Margin="0 27 0 0"
+                    Content="Sound Lists" Click="Button_Click"/>
+            <Button Width="100"
+                    Height="30"
+                    Content="Settings" Click="Button_Click_1"/>
+            <Button Width="100"
+                    Height="30"
+                    Content="Help"/>
 
-        <Button Background="Transparent" Margin="4" BorderBrush="Transparent" BorderThickness="0" Grid.Row="0" Grid.Column="0" Style="{StaticResource Buttons}">
-            <Image Source="../Resources/settings.png"/>
-        </Button>
-
+        </StackPanel>
+        <Grid   Name="dataGrid"
+                Grid.Column="1"
+                Grid.Row="1"
+                Grid.RowSpan="2"
+                Grid.ColumnSpan="2">
+        </Grid>
     </Grid>
 </Window>
     
