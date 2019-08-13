@@ -224,9 +224,10 @@
                 </Popup>
             </Grid>
             <Grid Grid.Row="2"
-                  Margin="0 15 0 10">
+                  Margin="0 20 0 0">
                 <StackPanel>
-                    <CheckBox HorizontalAlignment="Center"/>
+                    <CheckBox Name="overlapEnabled"
+                              HorizontalAlignment="Center"/>
                     <TextBlock Text="Overlap"
                            FontSize="16"
                            FontWeight="Bold"
@@ -238,8 +239,27 @@
                 <Button Width="50"
                         Height="25"
                         Content="Reset"
-                        FontWeight="Bold"
-                        Style="{StaticResource ButtonHover}" Click="DialResetButton"/>
+                        Style="{StaticResource ButtonHover}"
+                        Click="DialResetButton"/>
+            </Grid>
+            <Grid Grid.Row="2"
+                  Height="50">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Width="25"
+                            Height="25"
+                            Margin="0 0 10 0"
+                            Style="{StaticResource ButtonWithImageHover}"
+                            Click="PlaySound">
+                        <Image Source="../Resources/PlayButton.png"/>
+                    </Button>
+                    <Button Width="25"
+                            Height="25"
+                            Style="{StaticResource ButtonWithImageHover}"
+                            Click="StopSound">
+                        <Image Source="../Resources/StopButton.png"/>
+                    </Button>
+                </StackPanel>
+                
             </Grid>
         </StackPanel>
         <StackPanel Name="ButtonMenu"
@@ -257,20 +277,22 @@
                     Grid.Row="2"
                     Grid.Column="0"
                     Margin="0 27 0 0"
-                    Style="{StaticResource ButtonHover}">
+                    Style="{StaticResource ButtonWithImageHover}">
                 <Image Source="../Resources/settings.png"/>
             </Button>
             <Button Width="100"
                     Height="30"
                     Margin="0 27 0 0"
-                    Content="Sound Lists" Click="Button_Click"/>
+                    Style="{StaticResource ButtonHover}"
+                    Content="Sound Lists"/>
             <Button Width="100"
                     Height="30"
-                    Content="Settings" Click="Button_Click_1"/>
+                    Style="{StaticResource ButtonHover}"
+                    Content="Settings"/>
             <Button Width="100"
                     Height="30"
+                    Style="{StaticResource ButtonHover}"
                     Content="Help"/>
-
         </StackPanel>
         <Grid   Name="dataGrid"
                 Grid.Column="1"

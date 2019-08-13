@@ -30,6 +30,7 @@ namespace Soundboard
     /// </summary>
     public partial class MainWindow : Window
     {
+        private List<WaveOutEvent> playing = new List<WaveOutEvent>();
         private bool isCollapsed = true;
         private bool knobIsPressed = false;
         VarispeedSampleProvider speedControlInput;
@@ -40,8 +41,8 @@ namespace Soundboard
         private float speedFactor = 1;
         private float volumeInput = 1;
         private float volumeOutput = 1;
-        private WaveOutEvent inPlayer;
-        private WaveOutEvent outPlayer;
+        private WaveOutEvent inPlayer = new WaveOutEvent();
+        private WaveOutEvent outPlayer = new WaveOutEvent();
         private DispatcherTimer timer = new DispatcherTimer();
         private TableView.TableView tableView = new TableView.TableView();
         public MainWindow()
@@ -410,44 +411,51 @@ namespace Soundboard
                 speedFactor = (float)output;
             }
         }
-        public void PlaySound()
+
+        private void PlaySound(object sender, RoutedEventArgs e)
         {
-            inPlayer = new WaveOutEvent()
+            if (inPlayer.PlaybackState != PlaybackState.Playing && outPlayer.PlaybackState != PlaybackState.Playing || overlapEnabled.IsChecked == true)
             {
-                DeviceNumber = -1
-            };
-            outPlayer = new WaveOutEvent()
-            {
-                DeviceNumber = 1
-            };
-            string path = @"C:\Users\Wilco\Music\Giga Pudding.mp3";
-            AudioFileReader fileReaderInput = new AudioFileReader(path);
-            AudioFileReader fileReaderOutput = new AudioFileReader(path);
-            smbPitchInput = new SmbPitchShiftingSampleProvider(fileReaderInput);
-            smbPitchOutput = new SmbPitchShiftingSampleProvider(fileReaderOutput);
-            smbPitchInput.PitchFactor = pitchFactor;
-            smbPitchOutput.PitchFactor = pitchFactor;
-            speedControlInput = new VarispeedSampleProvider(smbPitchInput, 100, new SoundTouchProfile(true, false));
-            speedControlOutput = new VarispeedSampleProvider(smbPitchOutput, 100, new SoundTouchProfile(true, false));
-            speedControlInput.PlaybackRate = speedFactor;
-            speedControlOutput.PlaybackRate = speedFactor;
-            inPlayer.Volume = volumeInput;
-            outPlayer.Volume = volumeOutput;
-            inPlayer.Init(speedControlInput);
-            outPlayer.Init(speedControlOutput);
-            inPlayer.Play();
-            outPlayer.Play();
+                inPlayer = new WaveOutEvent()
+                {
+                    DeviceNumber = -1
+                };
+                outPlayer = new WaveOutEvent()
+                {
+                    DeviceNumber = 1
+                };
+                string path = @"C:\Users\Wilco\Music\Giga Pudding.mp3";
+                AudioFileReader fileReaderInput = new AudioFileReader(path);
+                AudioFileReader fileReaderOutput = new AudioFileReader(path);
+                smbPitchInput = new SmbPitchShiftingSampleProvider(fileReaderInput);
+                smbPitchOutput = new SmbPitchShiftingSampleProvider(fileReaderOutput);
+                smbPitchInput.PitchFactor = pitchFactor;
+                smbPitchOutput.PitchFactor = pitchFactor;
+                speedControlInput = new VarispeedSampleProvider(smbPitchInput, 100, new SoundTouchProfile(true, false));
+                speedControlOutput = new VarispeedSampleProvider(smbPitchOutput, 100, new SoundTouchProfile(true, false));
+                speedControlInput.PlaybackRate = speedFactor;
+                speedControlOutput.PlaybackRate = speedFactor;
+                inPlayer.Volume = volumeInput;
+                outPlayer.Volume = volumeOutput;
+                inPlayer.Init(speedControlInput);
+                outPlayer.Init(speedControlOutput);
+                inPlayer.Play();
+                outPlayer.Play();
+                playing.Add(inPlayer);
+                playing.Add(outPlayer);
+            }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void StopSound(object sender, RoutedEventArgs e)
         {
-            PlaySound();
-        }
-
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            inPlayer.Stop();
-            outPlayer.Stop();
+            if (playing.Count > 0)
+            {
+                foreach (WaveOutEvent sound in playing)
+                {
+                    sound.Stop();
+                }
+                playing.Clear();
+            }
         }
 
         private void DialResetButton(object sender, RoutedEventArgs e)

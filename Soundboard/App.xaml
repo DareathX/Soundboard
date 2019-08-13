@@ -5,9 +5,45 @@
              StartupUri="MainWindow/MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
-            <Style x:Key="ButtonHover" TargetType="{x:Type Button}">
+            <Style x:Key="ButtonWithImageHover" TargetType="{x:Type Button}">
                 <Setter Property="Background"
                         Value="Transparent"/>
+                <Setter Property="OverridesDefaultStyle"
+                        Value="True"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Name="border"
+                                    Background="{TemplateBinding Background}"
+                                    BorderThickness="0">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="Button.IsPressed"
+                                         Value="True">
+                                    <Setter TargetName="border"
+                                            Property="BorderBrush"
+                                            Value="Transparent" />
+                                </Trigger>
+                                <Trigger Property="IsMouseOver"
+                                         Value="True">
+                                    <Setter Property="Background">
+                                        <Setter.Value>
+                                            <SolidColorBrush Color="#FF3E4147"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="ButtonHover" TargetType="{x:Type Button}">
+                <Setter Property="Background"
+                        Value="#25272B"/>
+                <Setter Property="FontWeight"
+                        Value="bold"/>
                 <Setter Property="OverridesDefaultStyle"
                         Value="True"/>
                 <Setter Property="Template">
@@ -65,7 +101,7 @@
                     <Trigger Property="IsSelected" 
                              Value="True">
                         <Setter Property="Background"
-                                Value="#FF3E4147"/>
+                                Value="#FF42464D"/>
                         <Setter Property="Foreground"
                                 Value="Black"/>
                         <Setter Property="BorderBrush"
@@ -78,8 +114,8 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
-            <Style x:Key="MenuLayout"
-                   TargetType="MenuItem">
+            <Style x:Key="{x:Type MenuItem}"
+                   TargetType="{x:Type MenuItem}">
                 <Setter Property="FontWeight"
                         Value="Bold"/>
                 <Setter Property="OverridesDefaultStyle"

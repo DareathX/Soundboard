@@ -40,13 +40,10 @@
         <DataGrid.ContextMenu>
             <ContextMenu>
                 <MenuItem Header="Add"
-                          Style="{DynamicResource MenuLayout}"
                           Click="AddEntry"/>
                     <MenuItem Header="Edit"
-                          Style="{DynamicResource MenuLayout}"
                           Click="EditEntry"/>
                 <MenuItem Header="Delete"
-                          Style="{DynamicResource MenuLayout}"
                           Click="DeleteEntry"/>
             </ContextMenu>
         </DataGrid.ContextMenu>
