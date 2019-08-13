@@ -36,14 +36,20 @@ namespace Soundboard.TableView
         private void EditEntry(object sender, RoutedEventArgs e)
         {
             Entries newEntry = new Entries();
-            entries[TableEntries.SelectedIndex] = newEntry;
-            int replaceAt = TableEntries.SelectedIndex;
-            TableEntries.Items.RemoveAt(replaceAt);
-            TableEntries.Items.Insert(replaceAt, newEntry);
+            if (TableEntries.SelectedIndex != -1)
+            {
+                entries[TableEntries.SelectedIndex] = newEntry;
+                int replaceAt = TableEntries.SelectedIndex;
+                TableEntries.Items.RemoveAt(replaceAt);
+                TableEntries.Items.Insert(replaceAt, newEntry);
+            }
         }
         private void DeleteEntry(object sender, RoutedEventArgs e)
         {
-            TableEntries.Items.RemoveAt(TableEntries.SelectedIndex);
+            if (TableEntries.SelectedIndex != -1)
+            {
+                TableEntries.Items.RemoveAt(TableEntries.SelectedIndex);
+            }
         }
     }
 }
