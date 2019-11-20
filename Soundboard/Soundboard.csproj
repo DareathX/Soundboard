@@ -174,8 +174,12 @@
     <Resource Include="Resources\Gear2.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="SoundTouch\SoundTouch.dll" />
-    <Content Include="SoundTouch\SoundTouch_x64.dll" />
+    <None Include="SoundTouch.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="SoundTouch_x64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
