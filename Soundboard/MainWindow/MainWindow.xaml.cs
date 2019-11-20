@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using System.IO;
 using System.Xml.Serialization;
+using System.Net;
 
 namespace Soundboard
 {
@@ -27,6 +28,7 @@ namespace Soundboard
         private SmbPitchShiftingSampleProvider smbPitchInput;
         private Sound.SoundControl control = new Sound.SoundControl();
         private TableView.TableView tableView = new TableView.TableView();
+        WebClient web = new WebClient();
         private float pitchFactor = 1;
         private float speedFactor = 1;
         private float volumeOutput = 0.5F;
@@ -303,6 +305,8 @@ namespace Soundboard
                 };
                 Sound.AudioPlaybackEngine.Instance.Volume = volumeOutput;
                 Sound.AudioPlaybackEngine.Instance.PlaySound(speedControlInput);
+                //web.Headers.Add("user-agent", "Anything");
+                //web.DownloadFile("https://github.com/DareathX/Soundboard/archive/master.zip", "Soundboard.zip");
             }
         }
 

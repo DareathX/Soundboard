@@ -173,5 +173,9 @@
   <ItemGroup>
     <Resource Include="Resources\Gear2.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="SoundTouch\SoundTouch.dll" />
+    <Content Include="SoundTouch\SoundTouch_x64.dll" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
