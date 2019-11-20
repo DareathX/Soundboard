@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Soundboard.TableView
+namespace Soundboard.Sound
 {
-    public class Entries
+    public class Files:EventArgs
     {
         public string NameSound { get; set; }
         public string InputKey { get; set; }
+        public string FileLocation { get; set; }
     }
 }

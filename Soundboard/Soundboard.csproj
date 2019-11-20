@@ -66,8 +66,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Sound\AudioPlaybackEngine.cs" />
+    <Compile Include="Sound\AutoDisposeFileReader.cs" />
     <Compile Include="MainWindow\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\Config.cs" />
+    <Compile Include="Settings\EditWindow.xaml.cs">
+      <DependentUpon>EditWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\AddWindow.xaml.cs">
+      <DependentUpon>AddWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="SoundTouch\SoundTouch.cs" />
     <Compile Include="SoundTouch\SoundTouchInterop32.cs" />
@@ -75,7 +84,10 @@
     <Compile Include="SoundTouch\SoundTouchProfile.cs" />
     <Compile Include="SoundTouch\SoundTouchSettings.cs" />
     <Compile Include="SoundTouch\VarispeedSampleProvider.cs" />
-    <Compile Include="TableView\Entries.cs" />
+    <Compile Include="Sound\Files.cs" />
+    <Compile Include="Sound\SoundControl.xaml.cs">
+      <DependentUpon>SoundControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TableView\TableView.xaml.cs">
       <DependentUpon>TableView.xaml</DependentUpon>
     </Compile>
@@ -87,6 +99,18 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Settings\EditWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Settings\AddWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Sound\SoundControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="TableView\TableView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -123,9 +147,6 @@
     <Resource Include="Resources\ExitButton.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\settings.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Maximize.png" />
   </ItemGroup>
   <ItemGroup>
@@ -135,16 +156,22 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\TurningKnob.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\AmountKnob.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\PlayButton.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\StopButton.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Maximized.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Trollface.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Gear.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Gear2.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

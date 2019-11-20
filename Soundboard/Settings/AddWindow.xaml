@@ -1,0 +1,144 @@
+﻿<Window x:Class="Soundboard.Settings.AddWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Soundboard.Settings"
+        mc:Ignorable="d"
+        Title="AddWindow"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        Height="175"
+        Width="450"
+        BorderBrush="Black"
+        BorderThickness="1">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="20"
+                      NonClientFrameEdges="None"/>
+    </WindowChrome.WindowChrome>
+    <Grid Background="#36393F">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="100"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Rectangle Height="25"
+                   Grid.ColumnSpan="3">
+            <Rectangle.Fill>
+                <SolidColorBrush Color="#25272B"/>
+            </Rectangle.Fill>
+        </Rectangle>
+        <StackPanel Grid.Row="0"
+                    WindowChrome.IsHitTestVisibleInChrome="True">
+            <Button Height="25"
+                    Width="30"
+                    Grid.Column="3"
+                    HorizontalAlignment="Right"
+                    Click="ExitAddEntry">
+                <Image  Height="16"
+                        Width="16"
+                        Source="../Resources/ExitButton.png"/>
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Name="border" Background="{TemplateBinding Background}" BorderThickness="0">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="Button.IsPressed" Value="True">
+                                            <Setter TargetName="border" Property="BorderBrush" Value="Transparent" />
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#FFF04747"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="12"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="25"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="275"/>
+                <ColumnDefinition Width="25"/>
+            </Grid.ColumnDefinitions>
+            <Label Content="Name :"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Right"
+                   Grid.Row="1"/>
+            <TextBox Name="SoundName"
+                     Height="20"
+                     Width="300"
+                     Grid.Column="1"
+                     Grid.Row="1"
+                     Grid.ColumnSpan="2"
+                     Margin="2"
+                     FontWeight="Bold"/>
+            <Label Content="Key :"
+                   FontWeight="Bold"
+                   Grid.Row="2"
+                   HorizontalAlignment="Right"/>
+            <TextBox Name="SoundKey"
+                     Height="20"
+                     Grid.Column="1"
+                     Grid.Row="2"
+                     Margin="2"
+                     FontWeight="Bold"
+                     IsReadOnly="True"
+                     Text="1"/>
+            <Button Grid.Row="2"
+                    Grid.Column="2"
+                    Content="..."
+                    FontWeight="Bold"
+                    Style="{StaticResource ButtonHover}"
+                    Margin="2"
+                    Click="EnterKey"/>
+            <Label Content="File :"
+                   FontWeight="Bold"
+                   Grid.Row="3"
+                   HorizontalAlignment="Right"/>
+            <TextBox Name="SoundFile"
+                     Height="20"
+                     Grid.Column="1"
+                     Grid.Row="3"
+                     Margin="2"
+                     FontWeight="Bold"
+                     IsReadOnly="True"/>
+            <Button Grid.Row="3"
+                    Grid.Column="2"
+                    Content="..."
+                    FontWeight="Bold"
+                    Style="{StaticResource ButtonHover}"
+                    Margin="2"
+                    Click="FindFile"/>
+        </Grid>
+        <Grid Grid.Row="2"
+                    Width="150">
+            <Button Name="SaveEntry"
+                    Width="50"
+                    Height="25"
+                    Content="Save"
+                    Style="{StaticResource ButtonHover}"
+                    Click="SaveAddEntry"
+                    HorizontalAlignment="Left"/>
+            <Button Width="50"
+                    Height="25"
+                    Content="Cancel"
+                    Style="{StaticResource ButtonHover}"
+                    Click="ExitAddEntry"
+                    HorizontalAlignment="Right"/>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,27 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Media;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
-using NAudio.CoreAudioApi;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.IO;
-using System.Xml;
+using System.Xml.Serialization;
 
 namespace Soundboard
 {
@@ -30,21 +23,13 @@ namespace Soundboard
     /// </summary>
     public partial class MainWindow : Window
     {
-        private List<WaveOutEvent> playing = new List<WaveOutEvent>();
-        private bool isCollapsed = true;
-        private bool knobIsPressed = false;
-        VarispeedSampleProvider speedControlInput;
-        VarispeedSampleProvider speedControlOutput;
+        private VarispeedSampleProvider speedControlInput;
         private SmbPitchShiftingSampleProvider smbPitchInput;
-        private SmbPitchShiftingSampleProvider smbPitchOutput;
+        private Sound.SoundControl control = new Sound.SoundControl();
+        private TableView.TableView tableView = new TableView.TableView();
         private float pitchFactor = 1;
         private float speedFactor = 1;
-        private float volumeInput = 1;
-        private float volumeOutput = 1;
-        private WaveOutEvent inPlayer = new WaveOutEvent();
-        private WaveOutEvent outPlayer = new WaveOutEvent();
-        private DispatcherTimer timer = new DispatcherTimer();
-        private TableView.TableView tableView = new TableView.TableView();
+        private float volumeOutput = 0.5F;
         public MainWindow()
         {
             SourceInitialized += (s, e) =>
@@ -54,17 +39,52 @@ namespace Soundboard
             };
             InitializeComponent();
             Setup();
-            timer.Tick += Timer_Tick;
             dataGrid.Children.Add(tableView);
         }
 
         private void Setup()
         {
-            //RotateTransform rotate;
-            //rotate = new RotateTransform(Properties.Settings.Default.FirstVolume);
-            //firstVolume.RenderTransform = rotate;
-            //rotate = new RotateTransform(Properties.Settings.Default.SecondVolume);
-            //secondVolume.RenderTransform = rotate;
+            WhichAudioDevice();
+            Settings.Config config = new Settings.Config();
+            if (File.Exists("Config.xml") && !File.ReadAllText("Config.xml").Equals(""))
+            {
+                using (FileStream fileStream = new FileStream("Config.xml", FileMode.Open))
+                {
+                    XmlSerializer xml = new XmlSerializer(typeof(Settings.Config));
+                    config = (Settings.Config)xml.Deserialize(fileStream);
+                }
+                //volumeInput = config.FirstVolume;
+                //volumeOutput = config.SecondVolume;
+                //(firstVolume.RenderTransform as RotateTransform).Angle = config.FirstVolumeAngle;
+                //(secondVolume.RenderTransform as RotateTransform).Angle = config.SecondVolumeAngle;
+                //firstVolumePercentage.Text = config.FirstVolumePercentage;
+                //secondVolumePercentage.Text = config.SecondVolumePercentage;
+
+                if (config.SavedSoundFiles.Count >= 1)
+                {
+                    foreach (Sound.Files file in config.SavedSoundFiles)
+                    {
+                        tableView.TableEntries.Items.Add(file);
+                        TableView.TableView.SoundFiles.Add(file);
+                    }
+                }
+            }
+        }
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            Sound.AudioPlaybackEngine.Instance.Dispose();
+            Settings.Config config = new Settings.Config
+            {
+                //FirstVolume = inPlayer.Volume,
+                //SecondVolume = outPlayer.Volume,
+                //FirstVolumeAngle = (firstVolume.RenderTransform as RotateTransform).Angle,
+                //SecondVolumeAngle = (secondVolume.RenderTransform as RotateTransform).Angle,
+                //FirstVolumePercentage = firstVolumePercentage.Text,
+                //SecondVolumePercentage = secondVolumePercentage.Text,
+                SavedSoundFiles = TableView.TableView.SoundFiles,
+            };
+            config.Save();
         }
 
         private static IntPtr WindowProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -181,6 +201,7 @@ namespace Soundboard
         [DllImport("User32")]
         internal static extern IntPtr MonitorFromWindow(IntPtr handle, int flags);
 
+
         private void ExitSoundBoard(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();
@@ -190,197 +211,53 @@ namespace Soundboard
         {
             MaxHeight = SystemParameters.WorkArea.Height;
             WindowState = WindowState == WindowState.Normal ? WindowState.Maximized : WindowState.Normal;
+            if (WindowState == WindowState.Maximized)
+            {
+                maximizeButtonImage.Source = new BitmapImage(new Uri(Directory.GetParent(Environment.CurrentDirectory).Parent.FullName + "/Resources/Maximized.png"));
+                chrome.ResizeBorderThickness = new Thickness(0);
+            }
+            else
+            {
+                maximizeButtonImage.Source = new BitmapImage(new Uri(Directory.GetParent(Environment.CurrentDirectory).Parent.FullName + "/Resources/Maximize.png"));
+                chrome.ResizeBorderThickness = new Thickness(4);
+            }
+        }
+
+        private void AeroSnapCheck(object sender, EventArgs e)
+        {
+            if (WindowState == WindowState.Maximized)
+            {
+                maximizeButtonImage.Source = new BitmapImage(new Uri(Directory.GetParent(Environment.CurrentDirectory).Parent.FullName + "/Resources/Maximized.png"));
+                chrome.ResizeBorderThickness = new Thickness(0);
+            }
+            else
+            {
+                maximizeButtonImage.Source = new BitmapImage(new Uri(Directory.GetParent(Environment.CurrentDirectory).Parent.FullName + "/Resources/Maximize.png"));
+                chrome.ResizeBorderThickness = new Thickness(4);
+            }
         }
 
         private void MinimizeSoundBoard(object sender, RoutedEventArgs e)
         {
-            Application.Current.MainWindow.WindowState = WindowState.Minimized;
-        }
-
-        private void MenuToggleButton_Click(object sender, RoutedEventArgs e)
-        {
-            timer.Interval = TimeSpan.FromMilliseconds(15);
-            timer.Start();
-        }
-
-        private void Timer_Tick(object sender, EventArgs e)
-        {
-            if (isCollapsed)
-            {
-                ButtonMenu.Height += 10;
-                if (ButtonMenu.Height == ButtonMenu.MaxHeight)
-                {
-                    timer.Stop();
-                    isCollapsed = false;
-                }
-            }
-            else
-            {
-                ButtonMenu.Height -= 10;
-                if (ButtonMenu.Height == ButtonMenu.MinHeight)
-                {
-                    timer.Stop();
-                    isCollapsed = true;
-                }
-            }
-        }
-
-        private void KnobMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            knobIsPressed = true;
-            FrameworkElement turningKnob = e.Source as FrameworkElement;
-            Point mousePosition = new Point();
-            Image whichAmount = sender as Image;
-            var parent = VisualTreeHelper.GetParent(VisualTreeHelper.GetParent(whichAmount));
-            Image spaceOfWhichAmount = VisualTreeHelper.GetChild(parent, 0) as Image;
-            if (turningKnob.Name.Equals(whichAmount.Name))
-            {
-                mousePosition = e.GetPosition(spaceOfWhichAmount);
-            }
-            double angle = AngleBoundaries(mousePosition);
-            RotateTransform rotation = new RotateTransform(angle);
-            if (turningKnob.Name.Equals(whichAmount.Name))
-            {
-                whichAmount.RenderTransform = rotation;
-            }
-        }
-        private void KnobMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            knobIsPressed = false;
-        }
-
-        private void KnobMouseMove(object sender, MouseEventArgs e)
-        {
-            FrameworkElement turningKnob = e.Source as FrameworkElement;
-            Point mousePosition = new Point();
-            Point popupPosition = e.GetPosition(main);
-            Image whichAmount = sender as Image;
-            var parent = VisualTreeHelper.GetParent(VisualTreeHelper.GetParent(whichAmount));
-            Image spaceOfWhichAmount = VisualTreeHelper.GetChild(parent, 0) as Image;
-            Popup popupPercentage = VisualTreeHelper.GetChild(parent, 2) as Popup;
-            if (turningKnob.Name.Equals(whichAmount.Name))
-            {
-                mousePosition = e.GetPosition(spaceOfWhichAmount);
-                popupPercentage.HorizontalOffset = popupPosition.X - 10;
-                popupPercentage.VerticalOffset = popupPosition.Y + 25;
-            }
-            double angle = AngleBoundaries(mousePosition);
-            RotateTransform rotation = new RotateTransform(angle);
-            KnobPercentageAmount(angle, turningKnob, popupPercentage, whichAmount);
-            if (knobIsPressed)
-            {
-                if (turningKnob.Name.Equals(whichAmount.Name))
-                {
-                    whichAmount.RenderTransform = rotation;
-                }
-            }
-            WhichAudioDevice();
-        }
-
-        private double AngleBoundaries(Point mousePosition)
-        {
-            double slope = (50 - mousePosition.Y) / (50 - mousePosition.X);
-            double angle = Math.Atan(slope) * 180 / Math.PI;
-            if (mousePosition.X > 50)
-            {
-                angle = angle + 90;
-            }
-            else
-            {
-                angle = angle - 90;
-            }
-            if (angle >= 130)
-            {
-                angle = 130;
-            }
-            else if (angle <= -130)
-            {
-                angle = -130;
-            }
-            else if (double.IsNaN(angle))
-            {
-                angle = 0;
-            }
-            return angle;
-        }
-
-        private new void MouseLeave(object sender, MouseEventArgs e)
-        {
-            Image whichAmount = sender as Image;
-            var parent = VisualTreeHelper.GetParent(VisualTreeHelper.GetParent(whichAmount));
-            Popup popupPercentage = VisualTreeHelper.GetChild(parent, 2) as Popup;
-            popupPercentage.IsOpen = false;
-            knobIsPressed = false;
-        }
-
-        private void KnobPercentageAmount(double angle, FrameworkElement turningKnob, Popup popupPercentage, Image whichAmount)
-        {
-            TextBlock popupText = popupPercentage.Child as TextBlock;
-            double percentageCalc = 100f * (angle / 260f) * 2 + 100;
-            if (turningKnob.Name.Equals(whichAmount.Name))
-            {
-                popupPercentage.IsOpen = true;
-                if (knobIsPressed)
-                {
-                    switch (turningKnob.Name)
-                    {
-                        case "firstVolume":
-                            ChangeInputVolume(percentageCalc);
-                            break;
-                        case "secondVolume":
-                            ChangeOutputVolume(percentageCalc);
-                            break;
-                        case "pitch":
-                            ChangeAudioPitch(percentageCalc);
-                            break;
-                        case "speed":
-                            ChangeAudioSpeed(percentageCalc);
-                            break;
-                    }
-                    popupText.Text = (int)percentageCalc + "%";
-                }
-                else
-                {
-                    if (popupText.Text.Equals(""))
-                    {
-                        popupText.Text = "100%";
-                    }
-                }
-            }
+            WindowState = WindowState.Minimized;
         }
 
         private void WhichAudioDevice()
         {
-
+            for (int n = -1; n < WaveOut.DeviceCount; n++)
+            {
+                var caps = WaveOut.GetCapabilities(n);
+                Console.WriteLine($"{n}: {caps.ProductName}");
+            }
         }
 
-        private void ChangeInputVolume(double percentage)
+        private void ChangeVolume()
         {
-            double output = 0.5 * (percentage / 100);
-            if (inPlayer == null)
-            {
-                volumeInput = (float)output;
-            }
-            else
-            {
-                inPlayer.Volume = (float)output;
-                volumeInput = (float)output;
-            }
+            double output = 0.5 * (control.VolumePercentage / 100);
+            volumeOutput = (float)output;
+            Sound.AudioPlaybackEngine.Instance.Volume = volumeOutput;
         }
 
-        private void ChangeOutputVolume(double percentage)
-        {
-            double output = 0.5 * (percentage / 100);
-            if (inPlayer == null)
-            {
-                volumeOutput = (float)output;
-            }
-            else
-            {
-                outPlayer.Volume = (float)output;
-                volumeOutput = (float)output;
-            }
-        }
 
         private void ChangeAudioPitch(double percentage)
         {
@@ -392,7 +269,6 @@ namespace Soundboard
             else
             {
                 smbPitchInput.PitchFactor = (float)output;
-                smbPitchOutput.PitchFactor = (float)output;
                 pitchFactor = (float)output;
             }
         }
@@ -407,66 +283,37 @@ namespace Soundboard
             else
             {
                 speedControlInput.PlaybackRate = (float)output;
-                speedControlOutput.PlaybackRate = (float)output;
                 speedFactor = (float)output;
             }
         }
 
         private void PlaySound(object sender, RoutedEventArgs e)
         {
-            if (inPlayer.PlaybackState != PlaybackState.Playing && outPlayer.PlaybackState != PlaybackState.Playing || overlapEnabled.IsChecked == true)
+            string path = tableView.SelectedItem;
+            if (path != "" && Sound.AudioPlaybackEngine.Instance.outputDevice.PlaybackState == PlaybackState.Stopped || path != "" && overlapEnabled.IsChecked == true)
             {
-                inPlayer = new WaveOutEvent()
-                {
-                    DeviceNumber = -1
-                };
-                outPlayer = new WaveOutEvent()
-                {
-                    DeviceNumber = 1
-                };
-                string path = @"C:\Users\Wilco\Music\Giga Pudding.mp3";
                 AudioFileReader fileReaderInput = new AudioFileReader(path);
-                AudioFileReader fileReaderOutput = new AudioFileReader(path);
-                smbPitchInput = new SmbPitchShiftingSampleProvider(fileReaderInput);
-                smbPitchOutput = new SmbPitchShiftingSampleProvider(fileReaderOutput);
-                smbPitchInput.PitchFactor = pitchFactor;
-                smbPitchOutput.PitchFactor = pitchFactor;
-                speedControlInput = new VarispeedSampleProvider(smbPitchInput, 100, new SoundTouchProfile(true, false));
-                speedControlOutput = new VarispeedSampleProvider(smbPitchOutput, 100, new SoundTouchProfile(true, false));
-                speedControlInput.PlaybackRate = speedFactor;
-                speedControlOutput.PlaybackRate = speedFactor;
-                inPlayer.Volume = volumeInput;
-                outPlayer.Volume = volumeOutput;
-                inPlayer.Init(speedControlInput);
-                outPlayer.Init(speedControlOutput);
-                inPlayer.Play();
-                outPlayer.Play();
-                playing.Add(inPlayer);
-                playing.Add(outPlayer);
+                smbPitchInput = new SmbPitchShiftingSampleProvider(fileReaderInput)
+                {
+                    PitchFactor = pitchFactor
+                };
+                speedControlInput = new VarispeedSampleProvider(smbPitchInput, 100, new SoundTouchProfile(true, false))
+                {
+                    PlaybackRate = speedFactor
+                };
+                Sound.AudioPlaybackEngine.Instance.Volume = volumeOutput;
+                Sound.AudioPlaybackEngine.Instance.PlaySound(speedControlInput);
             }
         }
 
         private void StopSound(object sender, RoutedEventArgs e)
         {
-            if (playing.Count > 0)
-            {
-                foreach (WaveOutEvent sound in playing)
-                {
-                    sound.Stop();
-                }
-                playing.Clear();
-            }
+            Sound.AudioPlaybackEngine.Instance.StopSound();
         }
 
-        private void DialResetButton(object sender, RoutedEventArgs e)
+        private void SoundControl(object sender, RoutedEventArgs e)
         {
-            RotateTransform resetRotation = new RotateTransform(0);
-            pitch.RenderTransform = resetRotation;
-            speed.RenderTransform = resetRotation;
-            ChangeAudioPitch(100);
-            ChangeAudioSpeed(100);
-            pitchPercentage.Text = "100%";
-            speedPercentage.Text = "100%";
+            control.Show();
         }
     }
 }
