@@ -21,6 +21,8 @@ namespace Soundboard.Settings
     public partial class AddWindow : Window
     {
         public event EventHandler<Sound.Files> ItemAddedEvent;
+        private Sound.Files newEntry;
+        private NewKey newKey = new NewKey();
         public AddWindow()
         {
             InitializeComponent();
@@ -56,6 +58,7 @@ namespace Soundboard.Settings
                     }
                     else
                     {
+
                         NewEntryEvent(SoundName.Text, SoundKey.Text, SoundFile.Text);
                         Hide();
                     }
@@ -66,16 +69,20 @@ namespace Soundboard.Settings
                 NewEntryEvent(SoundName.Text, SoundKey.Text, SoundFile.Text);
                 Hide();
             }
+            TableView.TableView.SoundFiles.Add(new Sound.Files() { NameSound = SoundName.Text, InputKey = SoundKey.Text, FileLocation = SoundFile.Text });
         }
         protected void NewEntryEvent(string name, string key, string path)
         {
-            Sound.Files newEntry = new Sound.Files { NameSound = name, InputKey = key, FileLocation = path };
+            newEntry = new Sound.Files { NameSound = name, InputKey = key, FileLocation = path };
             ItemAddedEvent.Invoke(this, newEntry);
         }
 
         private void EnterKey(object sender, RoutedEventArgs e)
         {
-
+            newKey.showKey.Text = "";
+            newKey.Show();
+            newKey.Topmost = true;
+            newKey.showKey.Focus();
         }
 
         private void FindFile(object sender, RoutedEventArgs e)
@@ -87,6 +94,28 @@ namespace Soundboard.Settings
             };
             searchFile.ShowDialog();
             SoundFile.Text = searchFile.FileName;
+        }
+
+        private void GotFocusSoundKey(object sender, KeyEventArgs e)
+        {
+            if (Keyboard.Modifiers != ModifierKeys.None)
+            {
+                if (!e.Key.ToString().Contains("Shift") && !e.Key.ToString().Contains("Ctrl") && !e.Key.ToString().Contains("Alt") && e.Key != Key.System)
+                {
+                    if (Keyboard.Modifiers != ModifierKeys.Control)
+                    {
+                        SoundKey.Text = Keyboard.Modifiers + " + " + e.Key.ToString();
+                    }
+                    else
+                    {
+                        SoundKey.Text = "Ctrl + " + e.Key.ToString();
+                    }
+                }
+            }
+            else
+            {
+                SoundKey.Text = e.Key.ToString();
+            }
         }
     }
 }

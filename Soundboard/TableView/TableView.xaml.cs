@@ -22,7 +22,8 @@ namespace Soundboard.TableView
     public partial class TableView : UserControl
     {
         public static List<Sound.Files> SoundFiles { get; set; } = new List<Sound.Files>();
-        private AddWindow addWindow = new AddWindow();
+        public static List<int> Hotkeys { get; set; } = new List<int>();
+        public static AddWindow addWindow = new AddWindow();
         private EditWindow editWindow = new EditWindow();
         public string SelectedItem
         {
@@ -34,12 +35,15 @@ namespace Soundboard.TableView
         public TableView()
         {
             InitializeComponent();
+            addWindow.ItemAddedEvent += ItemAddedEventHandler;
+            editWindow.ItemEditEvent += ItemEditEventHandler;
         }
 
         private void AddEntryWindow(object sender, RoutedEventArgs e)
         {
-            
-            addWindow.ItemAddedEvent += ItemAddedEventHandler;
+            addWindow.SoundName.Text = "";
+            addWindow.SoundKey.Text = "";
+            addWindow.SoundFile.Text = "";
             addWindow.Show();
         }
 
@@ -47,14 +51,12 @@ namespace Soundboard.TableView
         {
             TableEntries.Items.Add(e);
             TableEntries.UnselectAllCells();
-            SoundFiles.Add(e);
         }
 
         private void EditEntry(object sender, RoutedEventArgs e)
         {
             if (TableEntries.SelectedIndex != -1)
             {
-                editWindow.ItemEditEvent += ItemEditEventHandler;
                 Sound.Files toBeEdited = (Sound.Files)TableEntries.SelectedItem;
                 editWindow.SoundName.Text = toBeEdited.NameSound;
                 editWindow.SoundKey.Text = toBeEdited.InputKey;

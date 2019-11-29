@@ -96,8 +96,8 @@
                      Grid.Row="2"
                      Margin="2"
                      FontWeight="Bold"
-                     IsReadOnly="True"
-                     Text="1"/>
+                     IsReadOnly="False"
+                     PreviewKeyDown="GotFocusSoundKey" />
             <Button Grid.Row="2"
                     Grid.Column="2"
                     Content="..."

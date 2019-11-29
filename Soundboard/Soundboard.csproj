@@ -66,6 +66,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Handler\AeroSnap.cs" />
+    <Compile Include="Handler\Handler.cs" />
+    <Compile Include="Handler\Hotkey.cs" />
+    <Compile Include="Settings\NewKey.xaml.cs">
+      <DependentUpon>NewKey.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Sound\AudioPlaybackEngine.cs" />
     <Compile Include="Sound\AutoDisposeFileReader.cs" />
     <Compile Include="MainWindow\MainWindow.xaml.cs">
@@ -104,6 +110,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Settings\AddWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Settings\NewKey.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -181,5 +191,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
