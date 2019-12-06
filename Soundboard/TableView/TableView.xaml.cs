@@ -81,7 +81,7 @@ namespace Soundboard.TableView
             {
                 Sound.Files removeKey = (Sound.Files)TableEntries.SelectedItem;
                 Handler.Hotkey.UnregisterHotKey(Handler.Handler.Handle, Hotkeys.First(f=>f.Value.Equals(removeKey.InputKey)).Key);
-                Hotkeys.Remove(Hotkeys.First(item => item.Key.Equals(removeKey.HotkeyCode)));
+                Hotkeys.Remove(Hotkeys.First(item => item.Key.Equals(removeKey.HotkeyCounter)));
                 SoundFiles.RemoveAt(TableEntries.SelectedIndex);
                 TableEntries.Items.RemoveAt(TableEntries.SelectedIndex);
             }

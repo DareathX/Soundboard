@@ -68,12 +68,12 @@ namespace Soundboard.Settings
             {
                 NewEntryEvent(SoundName.Text, SoundKey.Text, SoundFile.Text);
                 Hide();
-                TableView.TableView.SoundFiles.Add(new Sound.Files() { NameSound = SoundName.Text, InputKey = key, HotkeyCode = hotkeyCounter, FileLocation = SoundFile.Text });
                 TableView.TableView.Hotkeys.Add(new KeyValuePair<int, string>(hotkeyCounter, key));
                 if (key.Any(char.IsDigit))
                 {
                     key = "D" + key;
                 }
+                TableView.TableView.SoundFiles.Add(new Sound.Files() { NameSound = SoundName.Text, InputKey = SoundKey.Text, HotkeyCode = key, HotkeyCounter = hotkeyCounter, FileLocation = SoundFile.Text });
                 Handler.Hotkey.RegisterHotKey(Handler.Handler.Handle, hotkeyCounter++, 0, KeyInterop.VirtualKeyFromKey((Key)Enum.Parse(typeof(Key), key)));
             }
         }

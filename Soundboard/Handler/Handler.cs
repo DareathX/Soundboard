@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 
 namespace Soundboard.Handler
@@ -19,7 +20,8 @@ namespace Soundboard.Handler
                 case 0x0312:
                     int key = (((int)lParam >> 16) & 0xFFFF);
                     VKey = KeyInterop.KeyFromVirtualKey(key);
-                    Console.WriteLine("yup " + VKey);
+                    MainWindow mainWin = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+                    mainWin.PlaySound();
                     handled = true;
                     break;
             }

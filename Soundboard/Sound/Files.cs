@@ -10,7 +10,8 @@ namespace Soundboard.Sound
     {
         public string NameSound { get; set; }
         public string InputKey { get; set; }
-        public int HotkeyCode { get; set; }
+        public string HotkeyCode { get; set; }
+        public int HotkeyCounter { get; set; }
         public string FileLocation { get; set; }
     }
 }

@@ -61,15 +61,8 @@ namespace Soundboard
                     {
                         tableView.TableEntries.Items.Add(file);
                         TableView.TableView.SoundFiles.Add(file);
-                        TableView.TableView.Hotkeys.Add(new KeyValuePair<int, string>(file.HotkeyCode, file.InputKey));
-                        if (file.InputKey.Any(char.IsDigit))
-                        {
-                            Handler.Hotkey.RegisterHotKey(Handler.Handler.Handle, file.HotkeyCode, 0, KeyInterop.VirtualKeyFromKey((Key)Enum.Parse(typeof(Key), "D" + file.InputKey)));
-                        }
-                        else
-                        {
-                            Handler.Hotkey.RegisterHotKey(Handler.Handler.Handle, file.HotkeyCode, 0, KeyInterop.VirtualKeyFromKey((Key)Enum.Parse(typeof(Key), file.InputKey)));
-                        }
+                        TableView.TableView.Hotkeys.Add(new KeyValuePair<int, string>(file.HotkeyCounter, file.InputKey));
+                        Handler.Hotkey.RegisterHotKey(Handler.Handler.Handle, file.HotkeyCounter, 0, KeyInterop.VirtualKeyFromKey((Key)Enum.Parse(typeof(Key), file.HotkeyCode)));
                     }
                 }
             }
@@ -189,6 +182,13 @@ namespace Soundboard
         public void PlaySound()
         {
             string path = tableView.SelectedItem;
+            foreach (Sound.Files file in TableView.TableView.SoundFiles)
+            {
+                if (Handler.Handler.VKey == (Key)Enum.Parse(typeof(Key), file.HotkeyCode))
+                {
+                    path = file.FileLocation;
+                }
+            }
             if (path != "" && Sound.AudioPlaybackEngine.Instance.outputDevice.PlaybackState == PlaybackState.Stopped || path != "" && overlapEnabled.IsChecked == true)
             {
                 AudioFileReader fileReaderInput = new AudioFileReader(path);

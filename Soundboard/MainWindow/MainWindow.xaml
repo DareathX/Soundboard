@@ -15,7 +15,8 @@
         BorderBrush="Black"
         BorderThickness="1"
         Name="main"
-        StateChanged="AeroSnapCheck">
+        StateChanged="AeroSnapCheck"
+        >
     <WindowChrome.WindowChrome>
         <WindowChrome x:Name="chrome"
                       ResizeBorderThickness="4"
