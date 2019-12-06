@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace Soundboard.Sound
 {
-    public class Files:EventArgs
+    public class Files : EventArgs
     {
         public string NameSound { get; set; }
         public string InputKey { get; set; }
+        public int HotkeyCode { get; set; }
         public string FileLocation { get; set; }
     }
 }

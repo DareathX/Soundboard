@@ -8,6 +8,8 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using System.Xml.Serialization;
+using System.Windows.Input;
+using System.Collections.Generic;
 
 namespace Soundboard
 {
@@ -16,7 +18,6 @@ namespace Soundboard
     /// </summary>
     public partial class MainWindow : Window
     {
-        private IntPtr handle;
         private VarispeedSampleProvider speedControlInput;
         private SmbPitchShiftingSampleProvider smbPitchInput;
         private Sound.SoundControl control = new Sound.SoundControl();
@@ -28,11 +29,11 @@ namespace Soundboard
         {
             SourceInitialized += (s, e) =>
             {
-                handle = (new WindowInteropHelper(this)).Handle;
-                HwndSource.FromHwnd(handle).AddHook(new HwndSourceHook(Handler.Handler.WindowProc));
+                Handler.Handler.Handle = (new WindowInteropHelper(this)).Handle;
+                HwndSource.FromHwnd(Handler.Handler.Handle).AddHook(new HwndSourceHook(Handler.Handler.WindowProc));
+                Setup();
             };
             InitializeComponent();
-            Setup();
             dataGrid.Children.Add(tableView);
         }
 
@@ -60,6 +61,15 @@ namespace Soundboard
                     {
                         tableView.TableEntries.Items.Add(file);
                         TableView.TableView.SoundFiles.Add(file);
+                        TableView.TableView.Hotkeys.Add(new KeyValuePair<int, string>(file.HotkeyCode, file.InputKey));
+                        if (file.InputKey.Any(char.IsDigit))
+                        {
+                            Handler.Hotkey.RegisterHotKey(Handler.Handler.Handle, file.HotkeyCode, 0, KeyInterop.VirtualKeyFromKey((Key)Enum.Parse(typeof(Key), "D" + file.InputKey)));
+                        }
+                        else
+                        {
+                            Handler.Hotkey.RegisterHotKey(Handler.Handler.Handle, file.HotkeyCode, 0, KeyInterop.VirtualKeyFromKey((Key)Enum.Parse(typeof(Key), file.InputKey)));
+                        }
                     }
                 }
             }
@@ -79,10 +89,10 @@ namespace Soundboard
                 SavedSoundFiles = TableView.TableView.SoundFiles,
             };
             config.Save();
-            HwndSource.FromHwnd(handle).RemoveHook(Handler.Handler.WindowProc);
-            foreach (int hotkey in TableView.TableView.Hotkeys)
+            HwndSource.FromHwnd(Handler.Handler.Handle).RemoveHook(Handler.Handler.WindowProc);
+            foreach (var hotkey in TableView.TableView.Hotkeys)
             {
-                Handler.Hotkey.UnregisterHotKey(handle, hotkey);
+                Handler.Hotkey.UnregisterHotKey(Handler.Handler.Handle, hotkey.Key);
             }
         }
 
@@ -172,7 +182,11 @@ namespace Soundboard
             }
         }
 
-        private void PlaySound(object sender, RoutedEventArgs e)
+        private void PlayButton(object sender, RoutedEventArgs e)
+        {
+            PlaySound();
+        }
+        public void PlaySound()
         {
             string path = tableView.SelectedItem;
             if (path != "" && Sound.AudioPlaybackEngine.Instance.outputDevice.PlaybackState == PlaybackState.Stopped || path != "" && overlapEnabled.IsChecked == true)
@@ -190,7 +204,6 @@ namespace Soundboard
                 Sound.AudioPlaybackEngine.Instance.PlaySound(speedControlInput);
             }
         }
-
         private void StopSound(object sender, RoutedEventArgs e)
         {
             Sound.AudioPlaybackEngine.Instance.StopSound();

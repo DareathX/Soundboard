@@ -39,7 +39,7 @@
                    FontWeight="Bold"
                    Foreground="Gray"
                    Text="Soundboard - SWP"
-                   Margin="5 0 0 0"/>
+                   Margin="5 0 0 0" />
         <StackPanel Height="25"
                     Grid.ColumnSpan="3"
                     Background="#25272B"
@@ -126,7 +126,7 @@
                                     <Border x:Name="border">
                                         <Grid>
                                             <Image x:Name="buttonImage"
-                                                   Source="../Resources/Gear.png"/>
+                                                   Source="../Resources/Gear.png" />
                                             <ContentPresenter Margin="{TemplateBinding Padding}"
                                                               HorizontalAlignment="Center"
                                                               VerticalAlignment="Center" />
@@ -158,11 +158,12 @@
             </Button>
             <StackPanel Orientation="Horizontal"
                         HorizontalAlignment="Center">
-                <Button Width="25"
+                <Button Name="playButton"
+                        Width="25"
                         Height="25"
                         Margin="0 0 10 0"
                         Style="{StaticResource ButtonWithImageHover}"
-                        Click="PlaySound">
+                        Click="PlayButton">
                     <Image Source="../Resources/PlayButton.png" />
                 </Button>
                 <Button Width="25"

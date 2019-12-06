@@ -22,7 +22,8 @@ namespace Soundboard.Settings
     {
         public event EventHandler<Sound.Files> ItemAddedEvent;
         private Sound.Files newEntry;
-        private NewKey newKey = new NewKey();
+        private int hotkeyCounter = 0;
+        private string key;
         public AddWindow()
         {
             InitializeComponent();
@@ -40,49 +41,46 @@ namespace Soundboard.Settings
 
         private void SaveAddEntry(object sender, RoutedEventArgs e)
         {
-            if (TableView.TableView.SoundFiles.Count >= 1)
+            key = SoundKey.Text.Split('+').Last();
+            SoundName.BorderBrush = Brushes.Gray;
+            SoundKey.BorderBrush = Brushes.Gray;
+            SoundFile.BorderBrush = Brushes.Gray;
+            foreach (Sound.Files file in TableView.TableView.SoundFiles)
             {
-                foreach (Sound.Files file in TableView.TableView.SoundFiles)
+                if (SoundKey.Text == file.InputKey)
                 {
-                    if (SoundName.Text == "" || SoundName.Text == file.NameSound)
-                    {
-                        SoundName.BorderBrush = Brushes.Red;
-                    }
-                    else if (SoundKey.Text == "" || SoundKey.Text == file.InputKey)
-                    {
-                        SoundKey.BorderBrush = Brushes.Red;
-                    }
-                    else if (SoundFile.Text == "")
-                    {
-                        SoundFile.BorderBrush = Brushes.Red;
-                    }
-                    else
-                    {
-
-                        NewEntryEvent(SoundName.Text, SoundKey.Text, SoundFile.Text);
-                        Hide();
-                    }
+                    SoundKey.BorderBrush = Brushes.Red;
                 }
+            }
+            if (SoundName.Text == "")
+            {
+                SoundName.BorderBrush = Brushes.Red;
+            }
+            else if (SoundKey.Text == "")
+            {
+                SoundKey.BorderBrush = Brushes.Red;
+            }
+            else if (SoundFile.Text == "")
+            {
+                SoundFile.BorderBrush = Brushes.Red;
             }
             else
             {
                 NewEntryEvent(SoundName.Text, SoundKey.Text, SoundFile.Text);
                 Hide();
+                TableView.TableView.SoundFiles.Add(new Sound.Files() { NameSound = SoundName.Text, InputKey = key, HotkeyCode = hotkeyCounter, FileLocation = SoundFile.Text });
+                TableView.TableView.Hotkeys.Add(new KeyValuePair<int, string>(hotkeyCounter, key));
+                if (key.Any(char.IsDigit))
+                {
+                    key = "D" + key;
+                }
+                Handler.Hotkey.RegisterHotKey(Handler.Handler.Handle, hotkeyCounter++, 0, KeyInterop.VirtualKeyFromKey((Key)Enum.Parse(typeof(Key), key)));
             }
-            TableView.TableView.SoundFiles.Add(new Sound.Files() { NameSound = SoundName.Text, InputKey = SoundKey.Text, FileLocation = SoundFile.Text });
         }
         protected void NewEntryEvent(string name, string key, string path)
         {
             newEntry = new Sound.Files { NameSound = name, InputKey = key, FileLocation = path };
             ItemAddedEvent.Invoke(this, newEntry);
-        }
-
-        private void EnterKey(object sender, RoutedEventArgs e)
-        {
-            newKey.showKey.Text = "";
-            newKey.Show();
-            newKey.Topmost = true;
-            newKey.showKey.Focus();
         }
 
         private void FindFile(object sender, RoutedEventArgs e)
@@ -100,21 +98,21 @@ namespace Soundboard.Settings
         {
             if (Keyboard.Modifiers != ModifierKeys.None)
             {
-                if (!e.Key.ToString().Contains("Shift") && !e.Key.ToString().Contains("Ctrl") && !e.Key.ToString().Contains("Alt") && e.Key != Key.System)
+                e.Handled = true;
+                SoundKey.Text = Keyboard.Modifiers.ToString();
+                if (!e.Key.ToString().Contains("Ctrl") && !e.Key.ToString().Contains("Shift") && !e.Key.ToString().Contains("Alt") && !e.Key.ToString().Contains("System"))
                 {
-                    if (Keyboard.Modifiers != ModifierKeys.Control)
-                    {
-                        SoundKey.Text = Keyboard.Modifiers + " + " + e.Key.ToString();
-                    }
-                    else
-                    {
-                        SoundKey.Text = "Ctrl + " + e.Key.ToString();
-                    }
+                    SoundKey.Text += " + " + e.Key.ToString();
                 }
             }
             else
             {
                 SoundKey.Text = e.Key.ToString();
+            }
+            SoundKey.Text = SoundKey.Text.Replace("Control", "Ctrl");
+            if (e.Key.ToString().Any(char.IsDigit))
+            {
+                SoundKey.Text = SoundKey.Text.Replace("D", "");
             }
         }
     }

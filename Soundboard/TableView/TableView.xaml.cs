@@ -22,7 +22,7 @@ namespace Soundboard.TableView
     public partial class TableView : UserControl
     {
         public static List<Sound.Files> SoundFiles { get; set; } = new List<Sound.Files>();
-        public static List<int> Hotkeys { get; set; } = new List<int>();
+        public static List<KeyValuePair<int, string>> Hotkeys = new List<KeyValuePair<int, string>>();
         public static AddWindow addWindow = new AddWindow();
         private EditWindow editWindow = new EditWindow();
         public string SelectedItem
@@ -42,8 +42,11 @@ namespace Soundboard.TableView
         private void AddEntryWindow(object sender, RoutedEventArgs e)
         {
             addWindow.SoundName.Text = "";
+            addWindow.SoundName.BorderBrush = Brushes.Gray;
             addWindow.SoundKey.Text = "";
+            addWindow.SoundKey.BorderBrush = Brushes.Gray;
             addWindow.SoundFile.Text = "";
+            addWindow.SoundFile.BorderBrush = Brushes.Gray;
             addWindow.Show();
         }
 
@@ -76,6 +79,9 @@ namespace Soundboard.TableView
         {
             if (TableEntries.SelectedIndex != -1)
             {
+                Sound.Files removeKey = (Sound.Files)TableEntries.SelectedItem;
+                Handler.Hotkey.UnregisterHotKey(Handler.Handler.Handle, Hotkeys.First(f=>f.Value.Equals(removeKey.InputKey)).Key);
+                Hotkeys.Remove(Hotkeys.First(item => item.Key.Equals(removeKey.HotkeyCode)));
                 SoundFiles.RemoveAt(TableEntries.SelectedIndex);
                 TableEntries.Items.RemoveAt(TableEntries.SelectedIndex);
             }

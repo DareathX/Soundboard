@@ -75,5 +75,27 @@ namespace Soundboard.Settings
             searchFile.ShowDialog();
             SoundFile.Text = searchFile.FileName;
         }
+
+        private void GotFocusSoundKey(object sender, KeyEventArgs e)
+        {
+            if (Keyboard.Modifiers != ModifierKeys.None)
+            {
+                e.Handled = true;
+                SoundKey.Text = Keyboard.Modifiers.ToString();
+                if (!e.Key.ToString().Contains("Ctrl") && !e.Key.ToString().Contains("Shift") && !e.Key.ToString().Contains("Alt") && !e.Key.ToString().Contains("System"))
+                {
+                    SoundKey.Text += " + " + e.Key.ToString();
+                }
+            }
+            else
+            {
+                SoundKey.Text = e.Key.ToString();
+            }
+            SoundKey.Text = SoundKey.Text.Replace("Control", "Ctrl");
+            if (e.Key.ToString().Any(char.IsDigit))
+            {
+                SoundKey.Text = SoundKey.Text.Replace("D", "");
+            }
+        }
     }
 }

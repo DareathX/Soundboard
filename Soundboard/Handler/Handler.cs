@@ -7,6 +7,7 @@ namespace Soundboard.Handler
     public class Handler
     {
         public static Key VKey;
+        public static IntPtr Handle;
         public static IntPtr WindowProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             switch (msg)
@@ -18,11 +19,11 @@ namespace Soundboard.Handler
                 case 0x0312:
                     int key = (((int)lParam >> 16) & 0xFFFF);
                     VKey = KeyInterop.KeyFromVirtualKey(key);
-                    Console.WriteLine("yup");
+                    Console.WriteLine("yup " + VKey);
                     handled = true;
                     break;
             }
-            return (IntPtr)0;
+            return IntPtr.Zero;
         }
 
         
