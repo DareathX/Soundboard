@@ -34,10 +34,14 @@ namespace Soundboard.Settings
         private void ExitEditEntry(object sender, RoutedEventArgs e)
         {
             Hide();
+            TableView.TableView.editing = false;
         }
 
         private void SaveEditEntry(object sender, RoutedEventArgs e)
         {
+            SoundName.BorderBrush = Brushes.Gray;
+            SoundKey.BorderBrush = Brushes.Gray;
+            SoundFile.BorderBrush = Brushes.Gray;
             List<TextBox> borderColor = new List<TextBox> { SoundName, SoundKey, SoundFile };
             if (SoundName.Text == "" || SoundKey.Text == "" || SoundFile.Text == "")
             {
@@ -49,19 +53,51 @@ namespace Soundboard.Settings
                     }
                     else
                     {
-                        empty.BorderBrush = Brushes.Transparent;
+                        empty.BorderBrush = Brushes.Gray;
                     }
                 }
             }
             else
             {
-                EditEntryEvent(SoundName.Text, SoundKey.Text, SoundFile.Text);
-                Hide();
+                string key = SoundKey.Text.Split('+').Last();
+                string modif = SoundKey.Text.Split('+').First();
+                bool hasMods = false;
+                if (!SoundKey.Text.Equals(TableView.TableView.keyEdit))
+                {
+                    System.Data.DataTable allMods = new System.Data.DataTable();
+                    var replaceHotkey = new KeyValuePair<int, string>(TableView.TableView.Hotkeys[TableView.TableView.Hotkeys.FindIndex(f => f.Value.Equals(TableView.TableView.keyEdit))].Key, SoundKey.Text);
+                    TableView.TableView.Hotkeys[TableView.TableView.Hotkeys.FindIndex(f => f.Value.Equals(TableView.TableView.keyEdit))] = replaceHotkey;
+                    if (key.Any(char.IsDigit))
+                    {
+                        key = "D" + key.Replace(" ", "");
+                    }
+                    foreach (string mods in Enum.GetNames(typeof(Handler.Hotkey.KeyModifier)))
+                    {
+                        if (modif.Contains(mods))
+                        {
+                            modif = modif.Replace(mods, ((int)(Handler.Hotkey.KeyModifier)Enum.Parse(typeof(Handler.Hotkey.KeyModifier), mods)).ToString());
+                            hasMods = true;
+                        }
+                    }
+                    if (!hasMods)
+                    {
+                        modif = "0";
+                    }
+                    else
+                    {
+                        modif = allMods.Compute(modif, "").ToString();
+                    }
+                    Handler.Hotkey.RegisterHotKey(Handler.Handler.Handle, TableView.TableView.Hotkeys[TableView.TableView.Hotkeys.FindIndex(f => f.Value.Equals(SoundKey.Text))].Key, uint.Parse(modif), KeyInterop.VirtualKeyFromKey((Key)Enum.Parse(typeof(Key), key)));
+                    EditEntryEvent(SoundName.Text, SoundKey.Text, key, TableView.TableView.SoundFiles[TableView.TableView.SoundFiles.FindIndex(f => f.InputKey.Equals(TableView.TableView.keyEdit))].HotkeyCounter, SoundFile.Text);
+                    Hide();
+                    TableView.TableView.editing = false;
+                    allMods.Dispose();
+                }
             }
         }
-        protected void EditEntryEvent(string name, string key, string path)
+        protected void EditEntryEvent(string name, string key, string keyCode, int keyCounter, string path)
         {
-            Sound.Files editEntry = new Sound.Files { NameSound = name, InputKey = key, FileLocation = path };
+            Sound.Files editEntry = new Sound.Files { NameSound = name, InputKey = key, HotkeyCode = keyCode, HotkeyCounter = keyCounter, FileLocation = path };
             ItemEditEvent.Invoke(this, editEntry);
         }
 

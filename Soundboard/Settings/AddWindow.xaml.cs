@@ -21,9 +21,7 @@ namespace Soundboard.Settings
     public partial class AddWindow : Window
     {
         public event EventHandler<Sound.Files> ItemAddedEvent;
-        private Sound.Files newEntry;
         private int hotkeyCounter = 0;
-        private string key;
         public AddWindow()
         {
             InitializeComponent();
@@ -37,11 +35,11 @@ namespace Soundboard.Settings
         private void ExitAddEntry(object sender, RoutedEventArgs e)
         {
             Hide();
+            TableView.TableView.editing = false;
         }
 
         private void SaveAddEntry(object sender, RoutedEventArgs e)
         {
-            key = SoundKey.Text.Split('+').Last();
             SoundName.BorderBrush = Brushes.Gray;
             SoundKey.BorderBrush = Brushes.Gray;
             SoundFile.BorderBrush = Brushes.Gray;
@@ -66,20 +64,42 @@ namespace Soundboard.Settings
             }
             else
             {
-                NewEntryEvent(SoundName.Text, SoundKey.Text, SoundFile.Text);
-                Hide();
-                TableView.TableView.Hotkeys.Add(new KeyValuePair<int, string>(hotkeyCounter, key));
+                string key = SoundKey.Text.Split('+').Last();
+                string modif = SoundKey.Text.Split('+').First();
+                bool hasMods = false;
+                System.Data.DataTable allMods = new System.Data.DataTable();
+                TableView.TableView.Hotkeys.Add(new KeyValuePair<int, string>(hotkeyCounter, SoundKey.Text));
                 if (key.Any(char.IsDigit))
                 {
-                    key = "D" + key;
+                    key = "D" + key.Replace(" ", "");
+                }
+                foreach (string mods in Enum.GetNames(typeof(Handler.Hotkey.KeyModifier)))
+                {
+                    if (modif.Contains(mods))
+                    {
+                        modif = modif.Replace(mods, ((int)(Handler.Hotkey.KeyModifier)Enum.Parse(typeof(Handler.Hotkey.KeyModifier), mods)).ToString());
+                        hasMods = true;
+                    }
+                }
+                if (!hasMods)
+                {
+                    modif = "0";
+                }
+                else
+                {
+                    modif = allMods.Compute(modif, "").ToString();
                 }
                 TableView.TableView.SoundFiles.Add(new Sound.Files() { NameSound = SoundName.Text, InputKey = SoundKey.Text, HotkeyCode = key, HotkeyCounter = hotkeyCounter, FileLocation = SoundFile.Text });
-                Handler.Hotkey.RegisterHotKey(Handler.Handler.Handle, hotkeyCounter++, 0, KeyInterop.VirtualKeyFromKey((Key)Enum.Parse(typeof(Key), key)));
+                NewEntryEvent(SoundName.Text, SoundKey.Text, key, hotkeyCounter, SoundFile.Text);
+                Handler.Hotkey.RegisterHotKey(Handler.Handler.Handle, hotkeyCounter++, uint.Parse(modif), KeyInterop.VirtualKeyFromKey((Key)Enum.Parse(typeof(Key), key)));
+                Hide();
+                TableView.TableView.editing = false;
+                allMods.Dispose();
             }
         }
-        protected void NewEntryEvent(string name, string key, string path)
+        protected void NewEntryEvent(string name, string key, string keyCode, int keyCounter, string path)
         {
-            newEntry = new Sound.Files { NameSound = name, InputKey = key, FileLocation = path };
+            Sound.Files newEntry = new Sound.Files { NameSound = name, InputKey = key, HotkeyCode = keyCode, HotkeyCounter = keyCounter, FileLocation = path };
             ItemAddedEvent.Invoke(this, newEntry);
         }
 

@@ -22,12 +22,10 @@ namespace Soundboard.Handler
                     VKey = KeyInterop.KeyFromVirtualKey(key);
                     MainWindow mainWin = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
                     mainWin.PlaySound();
-                    handled = true;
+                    handled = false;
                     break;
             }
             return IntPtr.Zero;
         }
-
-        
     }
 }

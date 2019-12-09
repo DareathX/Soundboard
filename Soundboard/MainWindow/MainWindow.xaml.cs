@@ -189,7 +189,11 @@ namespace Soundboard
                     path = file.FileLocation;
                 }
             }
-            if (path != "" && Sound.AudioPlaybackEngine.Instance.outputDevice.PlaybackState == PlaybackState.Stopped || path != "" && overlapEnabled.IsChecked == true)
+            if (TableView.TableView.editing)
+            {
+                path = "";
+            }
+            else if (path != "" && Sound.AudioPlaybackEngine.Instance.outputDevice.PlaybackState == PlaybackState.Stopped || path != "" && overlapEnabled.IsChecked == true)
             {
                 AudioFileReader fileReaderInput = new AudioFileReader(path);
                 smbPitchInput = new SmbPitchShiftingSampleProvider(fileReaderInput)
