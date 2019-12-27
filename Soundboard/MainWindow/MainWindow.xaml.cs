@@ -18,13 +18,8 @@ namespace Soundboard
     /// </summary>
     public partial class MainWindow : Window
     {
-        private VarispeedSampleProvider speedControlInput;
-        private SmbPitchShiftingSampleProvider smbPitchInput;
         private Sound.SoundControl control = new Sound.SoundControl();
         private TableView.TableView tableView = new TableView.TableView();
-        private float pitchFactor = 1;
-        private float speedFactor = 1;
-        private float volumeOutput = 0.5F;
         public MainWindow()
         {
             SourceInitialized += (s, e) =>
@@ -48,10 +43,11 @@ namespace Soundboard
                     XmlSerializer xml = new XmlSerializer(typeof(Settings.Config));
                     config = (Settings.Config)xml.Deserialize(fileStream);
                 }
-                //volumeInput = config.FirstVolume;
+                Sound.SoundControl.VolumeOutput = config.FirstVolume;
+                control.volumeFirstOutput.Value = config.FirstVolumeSlider;
+                Sound.SoundControl.VolumeSecondOutput = config.SecondVolume;
+                control.volumeSecondOutput.Value = config.SecondVolumeSlider;
                 //volumeOutput = config.SecondVolume;
-                //(firstVolume.RenderTransform as RotateTransform).Angle = config.FirstVolumeAngle;
-                //(secondVolume.RenderTransform as RotateTransform).Angle = config.SecondVolumeAngle;
                 //firstVolumePercentage.Text = config.FirstVolumePercentage;
                 //secondVolumePercentage.Text = config.SecondVolumePercentage;
 
@@ -73,10 +69,11 @@ namespace Soundboard
             Sound.AudioPlaybackEngine.Instance.Dispose();
             Settings.Config config = new Settings.Config
             {
-                //FirstVolume = inPlayer.Volume,
+                FirstVolume = Sound.SoundControl.VolumeOutput,
+                FirstVolumeSlider = control.volumeFirstOutput.Value,
+                SecondVolume = Sound.SoundControl.VolumeSecondOutput,
+                SecondVolumeSlider = control.volumeSecondOutput.Value,
                 //SecondVolume = outPlayer.Volume,
-                //FirstVolumeAngle = (firstVolume.RenderTransform as RotateTransform).Angle,
-                //SecondVolumeAngle = (secondVolume.RenderTransform as RotateTransform).Angle,
                 //FirstVolumePercentage = firstVolumePercentage.Text,
                 //SecondVolumePercentage = secondVolumePercentage.Text,
                 SavedSoundFiles = TableView.TableView.SoundFiles,
@@ -139,46 +136,11 @@ namespace Soundboard
             }
         }
 
-        private void ChangeVolume()
-        {
-            double output = 0.5 * (control.VolumePercentage / 100);
-            volumeOutput = (float)output;
-            Sound.AudioPlaybackEngine.Instance.Volume = volumeOutput;
-        }
-
-
-        private void ChangeAudioPitch(double percentage)
-        {
-            double output = 1 * (percentage / 100);
-            if (smbPitchInput == null)
-            {
-                pitchFactor = (float)output;
-            }
-            else
-            {
-                smbPitchInput.PitchFactor = (float)output;
-                pitchFactor = (float)output;
-            }
-        }
-
-        private void ChangeAudioSpeed(double speed)
-        {
-            double output = 1 * (speed / 100);
-            if (speedControlInput == null)
-            {
-                speedFactor = (float)output;
-            }
-            else
-            {
-                speedControlInput.PlaybackRate = (float)output;
-                speedFactor = (float)output;
-            }
-        }
-
         private void PlayButton(object sender, RoutedEventArgs e)
         {
             PlaySound();
         }
+
         public void PlaySound()
         {
             string path = tableView.SelectedItem;
@@ -193,19 +155,24 @@ namespace Soundboard
             {
                 path = "";
             }
-            else if (path != "" && Sound.AudioPlaybackEngine.Instance.outputDevice.PlaybackState == PlaybackState.Stopped || path != "" && overlapEnabled.IsChecked == true)
+            else if (overlapEnabled.IsChecked == false)
             {
-                AudioFileReader fileReaderInput = new AudioFileReader(path);
-                smbPitchInput = new SmbPitchShiftingSampleProvider(fileReaderInput)
+                Sound.AudioPlaybackEngine.Instance.StopSound();
+            }
+
+            if (path != "" && Sound.AudioPlaybackEngine.Instance.outputDevice.PlaybackState == PlaybackState.Stopped || path != "" && overlapEnabled.IsChecked == true)
+            {
+                Sound.AudioPlaybackEngine.fileReaderInput = new AudioFileReader(path);
+                Sound.SoundControl.smbPitchInput = new SmbPitchShiftingSampleProvider(Sound.AudioPlaybackEngine.fileReaderInput)
                 {
-                    PitchFactor = pitchFactor
+                    PitchFactor = control.PitchFactor
                 };
-                speedControlInput = new VarispeedSampleProvider(smbPitchInput, 100, new SoundTouchProfile(true, false))
+                control.SpeedControlInput = new VarispeedSampleProvider(Sound.SoundControl.smbPitchInput, 100, new SoundTouchProfile(true, false))
                 {
-                    PlaybackRate = speedFactor
+                    PlaybackRate = control.SpeedFactor
                 };
-                Sound.AudioPlaybackEngine.Instance.Volume = volumeOutput;
-                Sound.AudioPlaybackEngine.Instance.PlaySound(speedControlInput);
+                Sound.AudioPlaybackEngine.Instance.Volume = Sound.SoundControl.VolumeOutput;
+                Sound.AudioPlaybackEngine.Instance.PlaySound(control.SpeedControlInput);
             }
         }
         private void StopSound(object sender, RoutedEventArgs e)

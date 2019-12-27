@@ -11,10 +11,10 @@ namespace Soundboard.Settings
     public class Config
     {
         public float FirstVolume { get; set; }
-        public double FirstVolumeAngle { get; set; }
+        public double FirstVolumeSlider { get; set; }
         public string FirstVolumePercentage { get; set; }
         public float SecondVolume { get; set; }
-        public double SecondVolumeAngle { get; set; }
+        public double SecondVolumeSlider { get; set; }
         public string SecondVolumePercentage { get; set; }
         public List<Sound.Files> SavedSoundFiles { get; set; }
 

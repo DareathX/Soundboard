@@ -79,7 +79,7 @@
                     Margin="0 0 0 20"
                     Maximum="200"
                     Value="100"
-                    ValueChanged="SliderPercentage" />
+                    ValueChanged="FirstSliderPercentage" />
             <Slider Name="volumeSecondOutput"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
@@ -88,22 +88,24 @@
                     Margin="0 0 0 20"
                     Maximum="200"
                     Value="100"
-                    ValueChanged="SliderPercentage" />
+                    ValueChanged="SecondSliderPercentage" />
             <Slider Name="pitchOutput"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     Grid.Row="1"
                     Width="300"
                     Margin="0 0 0 20"
-                    Maximum="100"
-                    Minimum="-100" />
+                    Maximum="200"
+                    Value="100"
+                    ValueChanged="PitchSliderPercentage"/>
             <Slider Name="speedOutput"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     Grid.Row="1"
                     Width="300"
-                    Maximum="100"
-                    Minimum="-100" />
+                    Maximum="200"
+                    Value="100"
+                    ValueChanged="SpeedSliderPercentage"/>
         </StackPanel>
     </Grid>
 </Window>

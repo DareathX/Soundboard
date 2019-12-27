@@ -11,6 +11,7 @@ namespace Soundboard.Sound
     class AudioPlaybackEngine : IDisposable
     {
         public readonly IWavePlayer outputDevice;
+        public static AudioFileReader fileReaderInput;
         private readonly MixingSampleProvider mixer;
         public float Volume
         {
@@ -48,6 +49,7 @@ namespace Soundboard.Sound
             mixer.RemoveAllMixerInputs();
             outputDevice.Stop();
             outputDevice.Dispose();
+            Instance.Dispose();
             outputDevice.Init(mixer);
         }
 
@@ -75,6 +77,8 @@ namespace Soundboard.Sound
 
         public void Dispose()
         {
+            mixer.RemoveAllMixerInputs();
+            outputDevice.Stop();
             outputDevice.Dispose();
         }
 

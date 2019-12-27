@@ -62,15 +62,15 @@ namespace Soundboard.Settings
                 string key = SoundKey.Text.Split('+').Last();
                 string modif = SoundKey.Text.Split('+').First();
                 bool hasMods = false;
+                if (key.Any(char.IsDigit))
+                {
+                    key = "D" + key.Replace(" ", "");
+                }
                 if (!SoundKey.Text.Equals(TableView.TableView.keyEdit))
                 {
                     System.Data.DataTable allMods = new System.Data.DataTable();
                     var replaceHotkey = new KeyValuePair<int, string>(TableView.TableView.Hotkeys[TableView.TableView.Hotkeys.FindIndex(f => f.Value.Equals(TableView.TableView.keyEdit))].Key, SoundKey.Text);
                     TableView.TableView.Hotkeys[TableView.TableView.Hotkeys.FindIndex(f => f.Value.Equals(TableView.TableView.keyEdit))] = replaceHotkey;
-                    if (key.Any(char.IsDigit))
-                    {
-                        key = "D" + key.Replace(" ", "");
-                    }
                     foreach (string mods in Enum.GetNames(typeof(Handler.Hotkey.KeyModifier)))
                     {
                         if (modif.Contains(mods))
@@ -88,11 +88,11 @@ namespace Soundboard.Settings
                         modif = allMods.Compute(modif, "").ToString();
                     }
                     Handler.Hotkey.RegisterHotKey(Handler.Handler.Handle, TableView.TableView.Hotkeys[TableView.TableView.Hotkeys.FindIndex(f => f.Value.Equals(SoundKey.Text))].Key, uint.Parse(modif), KeyInterop.VirtualKeyFromKey((Key)Enum.Parse(typeof(Key), key)));
-                    EditEntryEvent(SoundName.Text, SoundKey.Text, key, TableView.TableView.SoundFiles[TableView.TableView.SoundFiles.FindIndex(f => f.InputKey.Equals(TableView.TableView.keyEdit))].HotkeyCounter, SoundFile.Text);
-                    Hide();
-                    TableView.TableView.editing = false;
                     allMods.Dispose();
                 }
+                EditEntryEvent(SoundName.Text, SoundKey.Text, key, TableView.TableView.SoundFiles[TableView.TableView.SoundFiles.FindIndex(f => f.InputKey.Equals(TableView.TableView.keyEdit))].HotkeyCounter, SoundFile.Text);
+                Hide();
+                TableView.TableView.editing = false;
             }
         }
         protected void EditEntryEvent(string name, string key, string keyCode, int keyCounter, string path)
